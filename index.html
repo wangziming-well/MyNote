@@ -20,7 +20,7 @@
 <div id="app">加载中...</div>
 <script>
     window.$docsify = {
-        // 项目名称
+        // 显示在侧边栏中的网站名称
         name: '个人文档',
         // 仓库地址，点击右上角的Github章鱼猫头像会跳转到此地址
         repo: 'https://github.com/wangziming-well',
@@ -31,11 +31,18 @@
         // 封面支持，默认加载的是项目根目录下的_coverpage.md文件
         coverpage: true,
         // 最大支持渲染的标题层级
-        maxLevel: 5,
+        maxLevel: 3,
         // 自定义侧边栏后默认不会再生成目录，设置生成目录的最大层级（建议配置为2-4）
-        subMaxLevel: 4,
+        subMaxLevel: 3,
         // 小屏设备下合并导航栏到侧边栏
-        mergeNavbar: true
+        mergeNavbar: true,
+        // 自动顶部，改变路线时
+        auto2top: true,
+        //访问主页时，仅加载封面
+        onlyCover: false,
+        //google分析
+        ga: 'UA-XXXXX-Y'
+
     }
 </script>
 <script>
@@ -45,11 +52,6 @@
             maxAge: 86400000,// 过期时间，单位毫秒，默认一天
             paths: auto,// 注意：仅适用于 paths: 'auto' 模式
             placeholder: '搜索',
-            // 支持本地化
-            placeholder: {
-                '/zh-cn/': '搜索',
-                '/': '搜索整个文档'
-            },
             noData: '找不到结果',
             depth: 4,
             hideOtherSidebarContent: false,
@@ -67,6 +69,23 @@
 <script src="//cdn.jsdelivr.net/npm/docsify/lib/plugins/search.min.js"></script>
 <!--在所有的代码块上添加一个简单的Click to copy按钮来允许用户从你的文档中轻易地复制代码-->
 <script src="//cdn.jsdelivr.net/npm/docsify-copy-code/dist/docsify-copy-code.min.js"></script>
+
+<!--评论组件-->
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk/dist/gitalk.css">
+<script src="//cdn.jsdelivr.net/npm/docsify/lib/plugins/gitalk.min.js"></script>
+<script src="//cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.js"></script>
+<script>
+    const gitalk = new Gitalk({
+        clientID: 'f7b7dc1999c52a6f63f4',
+        clientSecret: '548c7e701c7bd3d1a10ed666670e339aaae9609f',
+        repo: 'comment',
+        owner: 'wangziming-well',
+        admin: [],
+        // facebook-like distraction free mode
+        distractionFreeMode: false,
+        id: decodeURI(window.location.pathname),
+    })
+</script>
 
 <!-- 代码高亮 -->
 <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-bash.min.js"></script>
