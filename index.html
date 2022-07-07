@@ -70,23 +70,6 @@
 <!--在所有的代码块上添加一个简单的Click to copy按钮来允许用户从你的文档中轻易地复制代码-->
 <script src="//cdn.jsdelivr.net/npm/docsify-copy-code/dist/docsify-copy-code.min.js"></script>
 
-<!--评论组件-->
-<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk/dist/gitalk.css">
-<script src="//cdn.jsdelivr.net/npm/docsify/lib/plugins/gitalk.min.js"></script>
-<script src="//cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.js"></script>
-<script>
-    const gitalk = new Gitalk({
-        clientID: 'f7b7dc1999c52a6f63f4',
-        clientSecret: '18499aa8db6a5ec1d7d489c67db76f87698c8306',
-        repo: 'comment',
-        owner: 'wangziming-well',
-        admin: ['wangziming-well'],
-        // facebook-like distraction free mode
-        distractionFreeMode: false,
-        id: decodeURI(window.location.pathname),
-    })
-</script>
-
 <!-- 代码高亮 -->
 <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-bash.min.js"></script>
 <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-c.min.js"></script>
