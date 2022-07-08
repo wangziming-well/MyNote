@@ -13,6 +13,8 @@
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
     <!--LaTex样式-->
     <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css"/>
+    <!-- 折叠侧面栏样式 箭头样式 -->
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify-sidebar-collapse/dist/sidebar.min.css" />
     <!-- 主题 -->
     <!--<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify/themes/buble.css">-->
     <!--<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify/themes/dark.css">-->
@@ -36,7 +38,7 @@
         // 封面支持，默认加载的是项目根目录下的_coverpage.md文件
         coverpage: true,
         // 最大支持渲染的标题层级
-        maxLevel: 3,
+        maxLevel: 4,
         // 自定义侧边栏后默认不会再生成目录，设置生成目录的最大层级（建议配置为2-4）
         subMaxLevel: 3,
         // 小屏设备下合并导航栏到侧边栏
@@ -56,13 +58,25 @@
             hideOtherSidebarContent: false, // whether or not to hide other sidebar content
             namespace: 'website-1',
         },
-        //
+        //上一篇下一篇
         pagination: {
             previousText: "上一篇",
             nextText: "下一篇",
             crossChapter: true,
             crossChapterText: true,
         },
+        //到顶部
+        scrollToTop: {
+            auto: true,
+            //text: 'Top',
+            icon: 'arrow-up-1',
+            right: 15,
+            bottom: 5,
+            width: 50,
+            height: 40,
+            offset: 500
+        },
+        sidebarDisplayLevel:1, // set sidebar display level
         //插件
         plugins: [
             /*来必力评论*/
@@ -85,14 +99,26 @@
                         e.parentNode.insertBefore(j, e);
                     })(document, 'script');
                 });
+                // 页脚
+                hook.afterEach(function (html) {
+                    const footer = [
+                        "<footer style='text-align: center;'>",
+                        '<span>Copyright © 2021-2024 <a href="https://github.com/wangziming-well" target="_blank">wangziming</a><br/>',
+                        "<span id='sitetime'></span>",
+                        "</footer>",
+                    ].join("");
+                    return html + footer;
+                });
+
             },
         ]
     }
 </script>
 
+
+
 <!-- docsify的js依赖 -->
 <script src="//cdn.jsdelivr.net/npm/docsify/lib/docsify.min.js"></script>
-<!-- emoji表情支持 -->
 <script src="//cdn.jsdelivr.net/npm/docsify/lib/plugins/emoji.min.js"></script>
 <!-- 图片放大缩小支持 -->
 <script src="//cdn.jsdelivr.net/npm/docsify/lib/plugins/zoom-image.min.js"></script>
@@ -105,6 +131,10 @@
 <script src="//cdn.jsdelivr.net/npm/docsify-katex@latest/dist/docsify-katex.js"></script>
 <!--上一篇下一篇-->
 <script src="//cdn.jsdelivr.net/npm/docsify-pagination/dist/docsify-pagination.min.js"></script>
+<!-- 侧边栏折叠 -->
+<script src="//cdn.jsdelivr.net/npm/docsify-sidebar-collapse/dist/docsify-sidebar-collapse.min.js"></script>
+<!--到顶部-->
+<script src="//unpkg.com/@zhg-x/docsify-plugins@1.0.2/src/scroll-to-top.js"></script>
 <!-- 代码高亮 -->
 <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-bash.min.js"></script>
 <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-c.min.js"></script>
@@ -113,6 +143,42 @@
 <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-java.min.js"></script>
 <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-http.min.js"></script>
 
+<!-- 运行时间统计 -->
+<script >
+    function siteTime() {
+        window.setTimeout("siteTime()", 1000);
+        var seconds = 1000;
+        var minutes = seconds * 60;
+        var hours = minutes * 60;
+        var days = hours * 24;
+        var years = days * 365;
+        var today = new Date();
+        var todayYear = today.getFullYear();
+        var todayMonth = today.getMonth() + 1;
+        var todayDate = today.getDate();
+        var todayHour = today.getHours();
+        var todayMinute = today.getMinutes();
+        var todaySecond = today.getSeconds();
+        /* Date.UTC() -- 返回date对象距世界标准时间(UTC)1970年1月1日午夜之间的毫秒数(时间戳)
+        year - 作为date对象的年份，为4位年份值
+        month - 0-11之间的整数，做为date对象的月份
+        day - 1-31之间的整数，做为date对象的天数
+        hours - 0(午夜24点)-23之间的整数，做为date对象的小时数
+        minutes - 0-59之间的整数，做为date对象的分钟数
+        seconds - 0-59之间的整数，做为date对象的秒数
+        microseconds - 0-999之间的整数，做为date对象的毫秒数 */
+        var t1 = Date.UTC(2022, 7, 5, 0, 0, 0); //北京时间2020-02-10 00:00:00
+        var t2 = Date.UTC(todayYear, todayMonth, todayDate, todayHour, todayMinute, todaySecond);
+        var diff = t2 - t1;
+        var diffYears = Math.floor(diff / years);
+        var diffDays = Math.floor((diff / days) - diffYears * 365);
+        var diffHours = Math.floor((diff - (diffYears * 365 + diffDays) * days) / hours);
+        var diffMinutes = Math.floor((diff - (diffYears * 365 + diffDays) * days - diffHours * hours) / minutes);
+        var diffSeconds = Math.floor((diff - (diffYears * 365 + diffDays) * days - diffHours * hours - diffMinutes * minutes) / seconds);
+        document.getElementById("sitetime").innerHTML = " 本网站已运行 " + diffYears + " 年 " + diffDays + " 天 " + diffHours + " 小时 " + diffMinutes + " 分钟 " + diffSeconds + " 秒 ";
+    }
+    siteTime();
+</script>
 
 </body>
 
