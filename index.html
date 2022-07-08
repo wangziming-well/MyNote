@@ -11,7 +11,12 @@
     <!-- 设置浏览器图标 -->
     <link rel="icon" href="/favicon.ico" type="image/x-icon"/>
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
-    <!-- 默认主题 -->
+    <!--LaTex样式-->
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css"/>
+    <!-- 主题 -->
+    <!--<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify/themes/buble.css">-->
+    <!--<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify/themes/dark.css">-->
+    <!--<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify/themes/pure.css">-->
     <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify/lib/themes/vue.css">
 </head>
 
@@ -40,25 +45,51 @@
         auto2top: true,
         //访问主页时，仅加载封面
         onlyCover: false,
-        //google分析
-        ga: 'UA-XXXXX-Y'
-
-    }
-</script>
-<script>
-    // 搜索配置(url：https://docsify.js.org/#/zh-cn/plugins?id=%e5%85%a8%e6%96%87%e6%90%9c%e7%b4%a2-search)
-    window.$docsify = {
+        //搜索设置
         search: {
-            maxAge: 86400000,// 过期时间，单位毫秒，默认一天
-            paths: auto,// 注意：仅适用于 paths: 'auto' 模式
+            maxAge: 86400000, // Expiration time, the default one day
+            paths: [], // or 'auto'
             placeholder: '搜索',
-            noData: '找不到结果',
-            depth: 4,
-            hideOtherSidebarContent: false,
-            namespace: 'Docsify-Guide',
-        }
+            noData: '没有结果',
+            // Headline depth, 1 - 6
+            depth: 2,
+            hideOtherSidebarContent: false, // whether or not to hide other sidebar content
+            namespace: 'website-1',
+        },
+        //
+        pagination: {
+            previousText: "上一篇",
+            nextText: "下一篇",
+            crossChapter: true,
+            crossChapterText: true,
+        },
+        //插件
+        plugins: [
+            /*来必力评论*/
+            function (hook, vm) {
+                // load livere
+                hook.beforeEach(function (content) {
+                    var comment = "<div id='lv-container' data-id='city' data-uid='MTAyMC80MzA4MC8xOTYyNg=='></div>\n\n----\n"
+                    return content + comment;
+                });
+
+                hook.doneEach(function () {
+                    (function (d, s) {
+                        var j, e = d.getElementsByTagName(s)[0];
+                        if (typeof LivereTower === 'function') {
+                            return;
+                        }
+                        j = d.createElement(s);
+                        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+                        j.async = true;
+                        e.parentNode.insertBefore(j, e);
+                    })(document, 'script');
+                });
+            },
+        ]
     }
 </script>
+
 <!-- docsify的js依赖 -->
 <script src="//cdn.jsdelivr.net/npm/docsify/lib/docsify.min.js"></script>
 <!-- emoji表情支持 -->
@@ -69,24 +100,11 @@
 <script src="//cdn.jsdelivr.net/npm/docsify/lib/plugins/search.min.js"></script>
 <!--在所有的代码块上添加一个简单的Click to copy按钮来允许用户从你的文档中轻易地复制代码-->
 <script src="//cdn.jsdelivr.net/npm/docsify-copy-code/dist/docsify-copy-code.min.js"></script>
-
-<!--评论组件-->
-<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk/dist/gitalk.css">
-<script src="//cdn.jsdelivr.net/npm/docsify/lib/plugins/gitalk.min.js"></script>
-<script src="//cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.js"></script>
-<script>
-    const gitalk = new Gitalk({
-        clientID: 'f7b7dc1999c52a6f63f4',
-        clientSecret: '548c7e701c7bd3d1a10ed666670e339aaae9609f',
-        repo: 'comment',
-        owner: 'wangziming-well',
-        admin: [],
-        // facebook-like distraction free mode
-        distractionFreeMode: false,
-        id: decodeURI(window.location.pathname),
-    })
-</script>
-
+<!-- Latex支持 -->
+<!-- or <script src="//cdn.jsdelivr.net/gh/upupming/docsify-katex@latest/dist/docsify-katex.js"></script> -->
+<script src="//cdn.jsdelivr.net/npm/docsify-katex@latest/dist/docsify-katex.js"></script>
+<!--上一篇下一篇-->
+<script src="//cdn.jsdelivr.net/npm/docsify-pagination/dist/docsify-pagination.min.js"></script>
 <!-- 代码高亮 -->
 <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-bash.min.js"></script>
 <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-c.min.js"></script>
@@ -95,10 +113,7 @@
 <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-java.min.js"></script>
 <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-http.min.js"></script>
 
-<!-- 主题 -->
-<!--<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify/themes/buble.css">-->
-<!--<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify/themes/dark.css">-->
-<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify/themes/pure.css">
+
 </body>
 
 </html>
