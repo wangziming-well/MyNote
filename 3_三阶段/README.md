@@ -1,10 +1,6 @@
 - [返回首页](/?id=quick-start)
 - [三阶段](3_三阶段/)
-  - [ssm](3_三阶段/10_ssm.md)
-  - [mybaits逆向](3_三阶段/11_mybaits逆向.md)
-  - [分页查询](3_三阶段/12_分页查询.md)
-  - [ssm2](3_三阶段/13_ssm2.md)
-  - [git](3_三阶段/14_git.md)
+  
   - [jQuery](3_三阶段/1_jQuery.md)
   - [servlet](3_三阶段/2_servlet.md)
   - [jsp](3_三阶段/3_jsp.md)
@@ -14,3 +10,13 @@
   - [mybatis](3_三阶段/7_mybatis.md)
   - [SpringMVC](3_三阶段/8_SpringMVC.md)
   - [Spring](3_三阶段/9_Spring.md)
+  
+  * [ssm](3_三阶段/10_ssm.md)
+  
+  * [mybaits逆向](3_三阶段/11_mybaits逆向.md)
+  
+  * [分页查询](3_三阶段/12_分页查询.md)
+  
+  * [ssm2](3_三阶段/13_ssm2.md)
+  
+  * [git](3_三阶段/14_git.md)
