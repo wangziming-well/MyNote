@@ -10,7 +10,7 @@
   - [SpringMVC](3_三阶段/8_SpringMVC.md)
   - [Spring](3_三阶段/9_Spring.md)
   - [ssm](3_三阶段/10_ssm.md)
-  - [mybaits逆向](3_三阶段/11_mybaits逆向.md)
+  - [mybatis逆向](3_三阶段/11_mybatis逆向.md)
   - [分页查询](3_三阶段/12_分页查询.md)
   - [ssm2](3_三阶段/13_ssm2.md)
   - [git](3_三阶段/14_git.md)
