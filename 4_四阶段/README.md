@@ -1,4 +1,0 @@
-- [返回首页](/?id=quick-start)
-- [四阶段](4_四阶段/)
-  - [linux](4_四阶段/1_linux.md)
-  - [redis](4_四阶段/2_redis.md)
