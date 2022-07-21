@@ -7,3 +7,4 @@
   - [SSM2](4_Java框架/05_SSM2.md)
   - [Dubbo](4_Java框架/06_Dubbo.md)
   - [SpringBoot](4_Java框架/07_SpringBoot.md)
+  - [SpringBoot集成框架](4_Java框架/08_SpringBoot集成框架.md)
