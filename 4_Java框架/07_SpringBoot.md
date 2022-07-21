@@ -94,6 +94,12 @@ SpringBoot是Spring家族中的一员，它是用来简化Spring应用程序的�
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+        <!--热部署插件，可在创建项目时勾选-->
+        <dependency>
+           <groupId>org.springframework.boot</groupId>
+           <artifactId>spring-boot-devtools</artifactId>
+           <optional>true</optional>
+        </dependency>
     </dependencies>
 
     <build>
@@ -108,7 +114,51 @@ SpringBoot是Spring家族中的一员，它是用来简化Spring应用程序的�
 </project>
 ~~~
 
+## SpringBoot程序执行的入口
 
+可以在该程序入口获取spring上下文对象，执行非web应用：
+
+~~~java
+import org.springframework.context.ConfigurableApplicationContext;
+
+@SpringBootApplication
+public class Application {
+    
+    public static void main(String[] args) {
+        /*
+         SpringBoot程序启动后，返回值是ConfigurableApplicationContext
+         它也是一个Spring容器对象
+         相当于原来Spring中启动容器ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("");
+         */
+        //获取SpringBoot程序启动后的Spring容器
+        ConfigurableApplicationContext context = SpringApplication.run(Application.class, args);
+        //从Spring容器中获取指定bean的对象
+        UserService userService = (UserService) context.getBean("userServiceImpl");
+        //调用业务bean的方法
+        String sayHello = userService.sayHello();
+        System.out.println(sayHello);
+    }
+}
+~~~
+
+也可以在这里设置日志的输出：
+
+~~~java
+@SpringBootApplication
+public class Application {
+
+    public static void main(String[] args) {
+        SpringApplication springApplication = new SpringApplication(Application.class);
+        //关闭启动logo和启动日志的输出
+        springApplication.setBannerMode(Banner.Mode.OFF);
+        springApplication.run(args);
+    }
+}
+~~~
+
+**tips:**
+
+在src/main/resources放入banner.txt文件，该文件名字不能随意，文件中的内容就是要输出的logo
 
 ## springboot项目解释
 
@@ -198,70 +248,39 @@ school:
 	websit: www.bjpowernode.com
 ~~~
 
+# Springboot的Java配置
 
+Springboot不建议使用xml配置文件
 
-## @Value
+可以通过Java注解和类的方式进行自定义配置
 
-可以一次读取单个配置值
+比较常用的注解有：
 
-在声明的属性上使用`@Value`注解，springboot将自动把配置值赋给该属性
+- `@Configuration`：声明一个类作为配置类，代替xml文件
 
-示例：
+- `@Bean`：声明在方法上，将方法的返回值加入Bean容器，代替`<bean>`标签
 
-~~~java
-@Controller
-public class SpringBootController {
+    主要用在@Configuration注解的类里，也可以用在@Component注解的类里
 
-    @Value("${school.name}")
-    private String schoolName;
+    添加的bean的id为方法名
 
-    @Value("${school.websit}")
-    private String schoolWebsit;
+- `@Value`：注入属性在声明的属性上使用`@Value`注解，springboot将自动把配置值赋给该属性
 
-    @RequestMapping(value = "/springBoot/say")
-    public @ResponseBody String say() {
-        return schoolName + "------" + schoolWebsit;
-    }
-}
+- `@ConfigurationProperties`
 
-~~~
+    可以将配置的所有子配置映射成一个对象，用于自定义配置项比较多的情况
 
-## @ConfigurationProperties
+    指定在类上使用@ConfigurationProperties并指定prefix属性，springboot会根据prefix指定的配置，寻找该配置下的所有子配置，并将这些子配置赋值给类中具有相同名称的属性
 
-可以将配置的所有子配置映射成一个对象，用于自定义配置项比较多的情况
+    prefix可以不指定，如果不指定，那么会去配置文件中寻找与该类的属性名一致的配置
 
-指定在类上使用@ConfigurationProperties并指定prefix属性，springboot会根据prefix指定的配置，寻找该配置下的所有子配置，并将这些子配置赋值给类中具有相同名称的属性
+- `@PropertySource`：指定外部属性文件
 
-prefix可以不指定，如果不指定，那么会去配置文件中寻找与该类的属性名一致的配置
+**注意：**
 
-~~~java
-@Component
-@ConfigurationProperties(prefix = "school")
-public class ConfigInfo {
+1. 如果类上没有指定@PropertySource；那么这个类中的@Value注解将在默认的配置文件中寻找匹配的属性、
 
-    private String name;
-
-    private String websit;
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getWebsit() {
-        return websit;
-    }
-
-    public void setWebsit(String websit) {
-        this.websit = websit;
-    }
-}
-~~~
-
-注意：
+2. 解决使用@ConfigurationProperties注解出现警告问题
 
 ~~~xml
 <!--解决使用@ConfigurationProperties注解出现警告问题-->
@@ -331,446 +350,150 @@ SpringBoot要求jsp文件必须编译到指定的META-INF/resources目录下才�
 </resources>
 ~~~
 
+# Springboot使用Servlet组件
 
+spring中springmvc封装了servlet，在springboot中没有提供接口直接直接使用servlet，不过可以通过注解和配置的方式来使用它们
 
-# Springboot集成MyBatis
+## 注解扫描
 
-mybatis对spring进行了集成
+`@ServletComponentScan(basePackages = "")`
 
-## 依赖
+在springboot程序执行入口类上声明上该注解，将自动扫描注册指定包下的servlet组件
 
-~~~xml
-<!--MyBatis整合SpringBoot的起步依赖-->
-<dependency>
-    <groupId>org.mybatis.spring.boot</groupId>
-    <artifactId>mybatis-spring-boot-starter</artifactId>
-    <version>2.0.0</version>
-</dependency>
-<!--MySQL的驱动依赖-->
-<dependency>
-    <groupId>mysql</groupId>
-    <artifactId>mysql-connector-java</artifactId>
-</dependency>
-~~~
+## Java配置
 
-## 配置
+可以通过Java配置的方式手动注册Servlet组件
 
-springboot配置
+springboot提供了servlet组件的注册类，以供我们使用Java配置的方式注册它们：
 
-~~~properties
-#配置数据库的连接信息
-#注意这里的驱动类有变化
-spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
-spring.datasource.url=jdbc:mysql://localhost:3306/springboot?useUnicode=true&characterEncoding=utf8&useSSL=false
-spring.datasource.username=root
-spring.datasource.password=root
-~~~
+* ServletRegistrationBean
+* ServletListenerRegistrationBean
 
-maven配置资源扫描
+* FilterRegistrationBean
 
-~~~xml
-<resources>
-    <resource>
-        <directory>src/main/java</directory>
-        <includes>
-            <include>**/*.xml</include>
-        </includes>
-    </resource>
-</resources>
-~~~
+将以上类的实例交给spring管理（在配置类中，@Bean声明的方法中返回以上类的实例）
 
+在创建以上类的实例时，需要通过它们的构造函数将servlet组件的实例传入，并传入必要的参数(通过构造方法或者对象方法)，如url等
 
-
-## 注解
-
-* `@Mapper`标记当前类为mapper类
-
-* `@MapperScan("com.bjpn.springboot.mapper")`扫描mapper包的注解
-
-    需要再运行主类Application上添加
-
-
-
-## mapper配置文件
-
-如果mapper.xml没有与接口放到一起放在mapper包下，而是放在resources下的mapper包中，那么需要再springboot配置中配置：
-
-~~~properties
-mybatis.mapper-locations=classpath:mapper/*.xml
-~~~
-
-## 事务
-
-* 在入口类中使用注解 @EnableTransactionManagement 开启事务支持
-* 在访问数据库的Service方法上添加注解 @Transactional 即可
-
-@Transacitonal注解可以设置的参数：
-
-*  propagation
-
-    事务传播行为
-
-    * REQUIRED：支持当前事务，如果当前没有事务，就新建一个事务。这是最常见的选择。 
-    * SUPPORTS：支持当前事务，如果当前没有事务，就以非事务方式执行。 
-    * MANDATORY：支持当前事务，如果当前没有事务，就抛出异常。 
-    * REQUIRES_NEW：新建事务，如果当前存在事务，把当前事务挂起。 
-    * NOT_SUPPORTED：以非事务方式执行操作，如果当前存在事务，就把当前事务挂起。 
-    * NEVER：以非事务方式执行，如果当前存在事务，则抛出异常。 
-    * NESTED：支持当前事务，如果当前事务存在，则执行一个嵌套事务，如果当前没有事务，就新建一个事务。 
-
-* timeout 超时时间，默认30秒
-
-* isolation
-
-    事务隔离级别
-
-    MYSQL: 默认为REPEATABLE_READ级别
-    SQLSERVER: 默认为READ_COMMITTED
-
-    * Isolation.READ_UNCOMMITTED  : 读取未提交数据(会出现脏读, 不可重复读) 基本不使用
-
-    * Isolation.READ_COMMITTED  : 读取已提交数据(会出现不可重复读和幻读)
-
-    * Isolation.REPEATABLE_READ：可重复读(会出现幻读)
-        Isolation.SERIALIZABLE：串行化
-
-* readOnly 
-
-    属性用于设置当前事务是否为只读事务，设置为true表示只读，false则表示可读写，默认值为false。
-
-* rollbackFor
-* 该属性用于设置需要进行回滚的异常类数组，当方法中抛出指定异常数组中的异常时，则进行事务回滚
-
-*  rollbackForClassName
-
-    该属性用于设置需要进行回滚的异常类名称数组，当方法中抛出指定异常名称数组中的异常时，则进行事务回滚
-
-* noRollbackForClassName
-
-    该属性用于设置不需要进行回滚的异常类名称数组，当方法中抛出指定异常名称数组中的异常时，不进行事务回滚
-
-* noRollbackFor
-
-    该属性用于设置不需要进行回滚的异常类数组，当方法中抛出指定异常数组中的异常时，不进行事务回滚
-
-**注意：**以上四个rollbackFor参数，既可以指定单个参数，也可以用数组指定多个参数,例如：
-
-指定单一异常类：@Transactional(noRollbackFor=RuntimeException.class)
-
-指定多个异常类：@Transactional(noRollbackFor={RuntimeException.class, Exception.class})
-
-# Springboot下的springMVC
-
-Spring Boot下的Spring MVC和之前的Spring MVC使用是完全一样的，这里主要介绍spring支持的处理器注解
-
-* `@Controller`基本的处理器注解
-
-* `@RestController`
-
-    是@Controller与@ResponseBody的组合注解
-    	如果一个Controller类添加了@RestController，那么该Controller类下的所有方法都相当于添加了@ResponseBody注解
-
-* `RequestMapping`设置资源路径支持Get请求，也支持Post请求
-
-* `@GetMapping`
-
-    RequestMapping和Get请求方法的组合
-    只支持Get请求
-    Get请求主要用于查询操作
-
-    下面的注解类似
-
-* `@PostMapping`Post请求主要用户新增数据
-
-* `@PutMapping`Put通常用于修改数据
-
-* `@DeleteMapping`通常用于删除数据
-
-
-
-# Springboot实现RESTful
-
-一种互联网软件架构设计的风格，提出了一组客户端和服务器交互时的架构理念和设计原则：
-
-访问资源：请求资源，然后按照请求的方式进行处理，如果说get方式，查询操作，如果put 更新操作，如果是delete方式 删除资源，如果是post方式 添加资源
-
-## 实现
-
-Springboot为rest风格的编程提供了一下注解：
-
-* `@PathVariable`获取url中的路径变量
-
-使用之前介绍的`@PostMapping,@GetMapping,@DeleteMapping,@PutMapping`
-
-并在路径中设置路径变量,通过中括号：
-
-`@PostMapping("/springBoot/student/{name}/{age}")`
-
-案例：
+示例：
 
 ~~~java
-@PostMapping(value = "/springBoot/student/{name}/{age}")
-public Object addStudent(@PathVariable("name") String name,
-                             @PathVariable("age") Integer age) {
-        Map<String,Object> retMap = new HashMap<String, Object>();
-        retMap.put("name",name);
-        retMap.put("age",age);
-        return retMap;
+@Configuration 
+public class ServletConfig {
+    @Bean
+    public ServletRegistrationBean<HttpServlet> heServletRegistrationBean() {
+        return new ServletRegistrationBean<>(new MyServlet(),"/myServlet");
     }
+}
 ~~~
-
-## RESTful原则
-
-* 增post请求、删delete请求、改put请求、查get请求
-* 请求路径不要出现动词
-* 分页、排序等操作，不需要使用斜杠传参数
-
-# Springboot集成Redis
-
-## 依赖
-
-~~~xml
-<!-- 加载spring boot redis包 -->
-<dependency>
-   <groupId>org.springframework.boot</groupId>
-   <artifactId>spring-boot-starter-data-redis</artifactId>
-</dependency>
-~~~
-
-## 配置
-
-~~~yaml
-spring:
-	redis:
-		host: 192.168.92.134
-		port: 6379
-		password: 123456
-~~~
-
-## RedisTemplate
-
-springboot提供了RedisTemplate类，针对redis的操作进行了薄层封装
-
-### 键
-
-RedisTemplate针对redis的key操作进行封装：
-
-* `void rename(K oldKey, K newKey)`
-
-    修改 redis 中 key 的名称
-
-* `Boolean renameIfAbsent(K oldKey, K newKey)`
-
-    如果旧值 key 存在时，将旧值改为新值
-
-* `Boolean hasKey(K key)`
-
-    判断是否有 key 所对应的值，有则返回 true，没有则返回 false
-
-* `Boolean delete(K key)`
-
-    删除指定的key
-
-* `Long delete(Collection<K> keys)`
-
-    批量删除 key
-
-* `Boolean expire(K key, long timeout, TimeUnit unit)`
-    设置过期时间
-
-* `Boolean expireAt(K key, Date date)`
-
-    设置过期时间
-
-* `Long getExpire(K key)`
-
-    返回当前 key 所对应的剩余过期时间
-
-* `Long getExpire(K key, TimeUnit timeUnit)`
-
-    返回剩余过期时间并且指定时间单位
-
-* `Set<K>	keys(K pattern)`
-
-    查找匹配的 key 值，返回一个 Set 集合类型
-
-* `Boolean persist(K key)`
-
-    将 key 持久化保存
-
-* `Boolean move(K key, int dbIndex)`
-
-    将当前数据库的 key 移动到指定 redis 中数据库当中
-
-### 值
-
-RedisTemplate针对redis值的五种数据类型，提供不同的封装类：
-
-非绑定key操作：
-
-* `ValueOperations<K, V> opsForValue()`
-* `<HK, HV> HashOperations<K, HK, HV> opsForHash()`
-* `ListOperations<K, V> opsForList()`
-* `SetOperations<K, V> opsForSet()`
-* `ZSetOperations<K, V> opsForZSet()`
-
-绑定key操作：
-
-* `BoundValueOperations<K, V> boundValueOps(K key)`
-* `<HK, HV> BoundHashOperations<K, HK, HV> boundHashOps(K key)`
-* `BoundListOperations<K, V> boundListOps(K key)`
-* `BoundSetOperations<K, V> boundSetOps(K key)`
-* `BoundZSetOperations<K, V> boundZSetOps(K key)`
-
-Operations的方法与Jedis类似
-
-## redis作为数据库缓存
-
-### 设计思路
-
-* 接受到查询数据的请求
-* 首先访问redis查询
-    * 查询到数据，缓存命中，返回数据
-    * 没有查询到数据
-        * 查询数据库，将结果存入redis，并返回给用户
-
-### 代码实现
 
 ```java
-public Long queryAllStudentCount() {
-    //设置redisTemplate对象key的序列化方式
-    redisTemplate.setKeySerializer(new StringRedisSerializer());
-    //从redis缓存中获取总人数
-    Long allStudentCount = (Long) redisTemplate.opsForValue().get("allStudentCount");
-    //判断是否为空
-    if (null == allStudentCount) {
-        //去数据库查询，并存放到redis缓存中
-        System.out.println("数据库查询");
-        allStudentCount = studentMapper.selectAllStudentCount();
-        redisTemplate.opsForValue().set("allStudentCount",allStudentCount,30, TimeUnit.SECONDS);
-    }else{
-        System.out.println("缓存命中");
+@Configuration
+public class FilterConfig {
+    @Bean
+    public FilterRegistrationBean<Filter> myFilter(){
+        FilterRegistrationBean<Filter> filterRegistrationBean = new FilterRegistrationBean<>(new MyFilter());
+        filterRegistrationBean.addUrlPatterns("/*");
+        return filterRegistrationBean;
     }
-    return allStudentCount;
 }
 ```
 
-### 缓存穿透
-
-上面的代码在并发环境下会出现缓存穿透，缓存中已经有数据，但请求仍然会访问数据库
-
-需要改进代码，进行同步，进行两次次请求两次判断
-
-~~~java
-public Long queryAllStudentCount() {
-    //设置redisTemplate对象key的序列化方式
-    redisTemplate.setKeySerializer(new StringRedisSerializer());
-    //从redis缓存中获取总人数
-    Long allStudentCount = (Long) redisTemplate.opsForValue().get("allStudentCount");
-    if(null == allStudentCount){
-        synchronized (this){
-            allStudentCount = (Long) redisTemplate.opsForValue().get("allStudentCount");
-            //判断是否为空
-            if (null == allStudentCount) {
-                //去数据库查询，并存放到redis缓存中
-                System.out.println("-----数据库查询------");
-                allStudentCount = studentMapper.selectAllStudentCount();
-                redisTemplate.opsForValue().set("allStudentCount",allStudentCount,30, TimeUnit.SECONDS);
-            }else{
-                System.out.println("------缓存命中-------");
-            }
-        }
-    }else{
-        System.out.println("------缓存命中-------");
+```java
+@Configuration
+public class ListenerConfig {
+    @Bean
+    public ServletListenerRegistrationBean<EventListener> myListener(){
+        return new ServletListenerRegistrationBean<>(new MyListener());
     }
-    return allStudentCount;
 }
-~~~
+```
 
+# Springboot使用Actuator
 
-
-# Springboot继承Dubbo
+Actuator是Spring Boot提供的对应用系统的自省和监控的集成功能，可以对应用系统进行配置查看、健康检查、相关功能统计等
 
 ## 依赖
 
 ~~~xml
-<!--Spring Boot集成Dubbo的起步依赖-->
+<!--Spring Boot Actuator依赖-->
 <dependency>
-   <groupId>com.alibaba.spring.boot</groupId>
-   <artifactId>dubbo-spring-boot-starter</artifactId>
-   <version>2.0.0</version>
-</dependency>
-<!--ZooKeeper注册中心依赖-->
-<dependency>
-   <groupId>com.101tec</groupId>
-   <artifactId>zkclient</artifactId>
-   <version>0.10</version>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-actuator</artifactId>
 </dependency>
 ~~~
 
 ## 配置
 
 ~~~yaml
-
-spring:
-	application:
-		#配置Dubbo应用名称，必须有且唯一
-		name:
-	dubbo:
-		#配置是服务提供者，可省略
-		server: 
-		#配置注册中心地址
-		registry: zookeeper://192.168.92.134:2181
+management:
+    server:
+        #actuator监控的端口（端口可配可不配，如果不配置，则使用和server.port相同的端口）
+        port: 8080
+        #actuator监控的访问上下文根路径（路径可配可不配，如果不配置，则使用和server.context-path相同的路径）
+        base-path: /actuator
+        endpoints:
+            web:
+                exposure:
+                    #默认只开启了health和info，设置为*，则包含所有的web入口端点
+                    include: *
 ~~~
 
-## 注解
+## 使用
 
-* 开启Dubbo支持
+| **HTTP****方法** | **路径**        | **描述**                                   |
+| ---------------- | --------------- | ------------------------------------------ |
+| GET              | /configprops    | 查看配置属性，包括默认配置                 |
+| GET              | /beans          | 查看Spring容器目前初始化的bean及其关系列表 |
+| GET              | /env            | 查看所有环境变量                           |
+| GET              | /mappings       | 查看所有url映射                            |
+| GET              | /health         | 查看应用健康指标                           |
+| GET              | /info           | 查看应用信息                               |
+| GET              | /metrics        | 查看应用基本指标                           |
+| GET              | /metrics/{name} | 查看具体指标                               |
+| JMX              | /shutdown       | 关闭应用                                   |
+
+# Springboot程序的打包部署
+
+## 打包
+
+* 如果要打war包，程序入口类需扩展继承 SpringBootServletInitializer类并覆盖configure方法
 
 ~~~java
 @SpringBootApplication
-@EnableDubboConfiguration//开启Dubbo配置支持
-public class Application {
+public class Application extends SpringBootServletInitializer{
    public static void main(String[] args) {
       SpringApplication.run(Application.class, args);
    }
-}
-
-~~~
-
-* 服务提供者
-
-~~~java
-mport com.alibaba.dubbo.config.annotation.Service;
-import org.springframework.stereotype.Component;
-//@Service是由阿里提供的注解，不是spring的注册
-//@Service相当于 <dubbo:service interface="" ref="" version="" timeout=""/>
-//如果提供者指定version,那么消费者也得指定version
-@Service(interfaceClass = UserService.class,version = "1.0.0",timeout = 15000)
-@Component  //将接口实现类交给spring容器进行管理
-public class UserServiceImpl implements UserService {
-    @Override
-    public String say(String name) {
-        return "Hello SpringBoot!";
-    }
+   @Override
+   protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {
+//参数为当前Spring Boot启动类Application.class
+      return builder.sources(Application.class);
+   }
 }
 ~~~
 
-* 服务消费者
+* 配置pom文件
 
-~~~java
-@RestController
-public class UserController {
-    //@Reference注解 相当于<dubbo:reference id="" interface="" version="" check="false"/>
-    //通过远程调用注入服务提供者
-    @Reference(interfaceClass = UserService.class,version = "1.0.0",timeout = 15000,check=false)
-    private UserService userService;
+~~~xml
+<!--打包方式-->
+<packaging>war|jar</packaging>
 
-    @RequestMapping(value = "/springBoot/hello")
-    public Object hello(HttpServletRequest request) {
-        String sayHello = userService.say("SpringBoot");
-        return sayHello;
-    }
-}
+<build>
+    <!--指定包名-->
+	<finalName>packageName</finalName>
+</build>
+<!--SpringBoot 的打包插件(默认自动添加)-->
+<plugin>
+   <groupId>org.springframework.boot</groupId>
+   <artifactId>spring-boot-maven-plugin</artifactId>
+</plugin>
+
 ~~~
 
+* 打包：通过Maven package命令打war包到target目录下
+
+## 部署
+
+* war包：将war包拷贝到tomcat的webapps目录，并启动tomcat
+* jar包：通过java命令执行jar包  `java -jar 包名`
